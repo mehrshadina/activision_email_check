@@ -1,49 +1,52 @@
 import requests
-from multiprocessing import Process
 import os
+from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
+from time import sleep
 
-all_emails_file =  open(os.path.dirname(os.path.realpath(__file__)) + '/all_emails.txt', 'r')
-valid_emails_file = open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'w')
-
-
-
-def task():
-    line = all_emails_file.readline()
-    full_line = line.strip()
+def check_email(email_line):
+    full_line = email_line.strip()
     if full_line == '':
-        return
-    
+        return False
+
     splited_full_line = full_line.split(':')
-    print(splited_full_line)
     username = splited_full_line[0]
     pasword = splited_full_line[1]
 
     url = 'https://s.activision.com/activision/signup/checkEmail'
-    parms = {
+    params = {
         'email': username
     }
-    json_response = requests.post(url, params=parms).json()
 
-    if json_response['status'] == 'valid':
-        valid_emails_file.write(line)
-        valid_emails_file.flush()
+    try:
+        response = requests.post(url, params=params)
+        #print(response.url)
+        response.raise_for_status()  # پرتاب خطا در صورتی که پاسخ غیر 200 باشد
+        json_response = response.json()
 
-procs = []
+        if json_response['status'] == 'valid':
+            with open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'a') as valid_emails_file:
+                valid_emails_file.write(email_line)
+            return True
 
-for x in range(8):
-    proc = Process(target=task)
-    procs.append(proc)
-    proc.start()
+        return False
 
-for proc in procs:
-    proc.join(timeout=0)
-    if proc.is_alive():
-        print("Job is not finished!")
-
+    except requests.exceptions.RequestException as e:
+        print(f"Error processing email {username}: {e}")
 
 
+if __name__ == "__main__":
+    all_mails_file =  open(os.path.dirname(os.path.realpath(__file__)) + '/all_emails.txt', 'r')
+    email_lines = all_mails_file.readlines()
 
 
-all_emails_file.close()
-valid_emails_file.close()
-    
+    total_lines = len(email_lines)
+    successful_count = 0
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        for result in tqdm(executor.map(check_email, email_lines), total=total_lines):
+            if result:
+                successful_count += 1
+
+    success_rate = (successful_count / total_lines) * 100
+    print(f"Success Rate: {success_rate:.2f}%")
