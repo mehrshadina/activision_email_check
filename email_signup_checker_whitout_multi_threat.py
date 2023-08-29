@@ -36,5 +36,7 @@ for i in tqdm (range(num_lines),
 
         if json_response['status'] == 'valid':
             valid_emails_file.write(full_line + '\n')
+            valid_emails_file.flush()
         else:
             unvalid_emails_file.write(full_line + '\n')
+            unvalid_emails_file.flush()
