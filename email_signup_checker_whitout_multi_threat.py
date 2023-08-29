@@ -34,4 +34,4 @@ for i in tqdm (range(num_lines),
 
         if json_response['status'] == 'valid':
 
-            valid_emails_file.write(full_line)
+            valid_emails_file.write(full_line + '\n')
