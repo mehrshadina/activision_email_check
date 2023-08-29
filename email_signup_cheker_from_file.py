@@ -43,7 +43,7 @@ if __name__ == "__main__":
     total_lines = len(email_lines)
     successful_count = 0
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         for result in tqdm(executor.map(check_email, email_lines), total=total_lines):
             if result:
                 successful_count += 1
