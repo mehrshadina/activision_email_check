@@ -4,6 +4,8 @@ from tqdm import tqdm
 
 all_emails_file =  open(os.path.dirname(os.path.realpath(__file__)) + '/all_emails.txt', 'r')
 valid_emails_file = open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'a')
+unvalid_emails_file  = open(os.path.dirname(os.path.realpath(__file__)) + '/unvalid_emails.txt', 'a')
+
 num_lines = sum(1 for _ in all_emails_file)
 all_emails_file.seek(0)
 url = 'https://s.activision.com/activision/signup/checkEmail'
@@ -33,5 +35,6 @@ for i in tqdm (range(num_lines),
         json_response = response.json()
 
         if json_response['status'] == 'valid':
-
             valid_emails_file.write(full_line + '\n')
+        else:
+            unvalid_emails_file.write(full_line + '\n')
