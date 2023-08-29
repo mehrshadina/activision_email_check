@@ -2,6 +2,7 @@ import requests
 import os
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
 def check_email(line, url):
     full_line = line.strip()
@@ -17,7 +18,8 @@ def check_email(line, url):
 
     response = requests.post(url, params=params)
     if response.status_code != 200:
-        print('failed, to check email, username: %s' % username)
+        print('failed, to check email, username: %s\n' % username)
+        sleep(10)
         return None
     else:
         json_response = response.json()
