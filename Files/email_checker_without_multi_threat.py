@@ -1,7 +1,6 @@
 import requests, os
 from tqdm import tqdm
 
-
 all_emails_file =  open(os.path.dirname(os.path.realpath(__file__)) + '/all_emails.txt', 'r')
 valid_emails_file = open(os.path.dirname(os.path.realpath(__file__)) + '/valid_emails.txt', 'a')
 unvalid_emails_file  = open(os.path.dirname(os.path.realpath(__file__)) + '/unvalid_emails.txt', 'a')
